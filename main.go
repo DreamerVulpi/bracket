@@ -25,7 +25,7 @@ func main() {
 	mux.HandleFunc("POST /api/v1/user", handler.AddHandler)
 	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteHandler)
 	mux.HandleFunc("PATCH /api/v1/user", handler.EditHandler)
-	mux.HandleFunc("GET /api/v1/user", handler.ListHandler)
+	mux.HandleFunc("GET /api/v1/user", handler.GetHandler)
 
 	// Запускаем сервер на порту 8080
 	fmt.Println("Starting server at port 8080")

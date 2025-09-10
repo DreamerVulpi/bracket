@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/DreamerVulpi/bracket/entity"
+	"github.com/DreamerVulpi/bracket/usecase"
 )
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
@@ -31,35 +32,57 @@ func AddHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(result)
+
+	id, err := usecase.AddUser(result)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(id)
 }
 
 func EditHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Edit")
-	result, err := readRequest[entity.RequestUserEdit](r.Body)
+	player, err := readRequest[entity.RequestUserEdit](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(result)
+
+	err = usecase.EditUser(player)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Delete")
-	result, err := readRequest[entity.RequestUserDelete](r.Body)
+	id, err := readRequest[entity.RequestUserDelete](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(result)
+
+	err = usecase.DeleteUser(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
-func ListHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "List")
+func GetHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Get")
 	result, err := readRequest[entity.RequestUserGet](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(result)
+
+	player, err := usecase.GetUser(result)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(player)
 }
