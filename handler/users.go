@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-)
 
-type request struct {
-	Nickname string
-}
+	"github.com/DreamerVulpi/bracket/entity"
+)
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
 	var req T
@@ -28,7 +26,7 @@ func readRequest[T any](body io.ReadCloser) (T, error) {
 
 func AddHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Add")
-	result, err := readRequest[request](r.Body)
+	result, err := readRequest[entity.RequestUserAdd](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -38,7 +36,7 @@ func AddHandler(w http.ResponseWriter, r *http.Request) {
 
 func EditHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Edit")
-	result, err := readRequest[request](r.Body)
+	result, err := readRequest[entity.RequestUserEdit](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -48,7 +46,7 @@ func EditHandler(w http.ResponseWriter, r *http.Request) {
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Delete")
-	result, err := readRequest[request](r.Body)
+	result, err := readRequest[entity.RequestUserDelete](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -58,7 +56,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "List")
-	result, err := readRequest[request](r.Body)
+	result, err := readRequest[entity.RequestUserGet](r.Body)
 	if err != nil {
 		fmt.Println(err)
 		return
