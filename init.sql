@@ -1,0 +1,38 @@
+CREATE TABLE IF NOT EXISTS users
+(
+    Id SERIAL PRIMARY KEY,
+    Nickname VARCHAR(30)
+);
+
+CREATE TABLE IF NOT EXISTS "sets"
+(
+    Id SERIAL PRIMARY KEY,
+    Player1 INTEGER REFERENCES users (Id),
+    Player2 INTEGER REFERENCES users (Id)
+);
+
+CREATE TABLE IF NOT EXISTS pools 
+(
+    Id SERIAL PRIMARY KEY,
+    SetId INTEGER REFERENCES "sets" (Id)
+);
+
+CREATE TABLE IF NOT EXISTS brackets
+(
+    Id SERIAL PRIMARY KEY,
+    PoolId INTEGER REFERENCES pools (Id)
+);
+
+CREATE TABLE IF NOT EXISTS events
+(
+    Id SERIAL PRIMARY KEY,
+    "Name" VARCHAR(40) UNIQUE,
+    Bracket INTEGER REFERENCES brackets (Id)
+);
+
+CREATE TABLE IF NOT EXISTS tournaments
+(
+    Id SERIAL PRIMARY KEY, 
+    "Name" VARCHAR(40) UNIQUE,
+    EventId INTEGER REFERENCES events (Id)
+);

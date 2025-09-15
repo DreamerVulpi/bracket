@@ -33,12 +33,12 @@ func AddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := usecase.AddUser(result)
+	response, err := usecase.AddUser(result)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(id)
+	fmt.Println(response.Id)
 }
 
 func EditHandler(w http.ResponseWriter, r *http.Request) {
