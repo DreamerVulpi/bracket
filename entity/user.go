@@ -1,7 +1,7 @@
 package entity
 
 type User struct {
-	Id       string `json:"id"`
+	Id       int    `json:"id"`
 	Nickname string `json:"nickname"`
 }
 
@@ -14,11 +14,11 @@ type RequestUserEdit struct {
 }
 
 type RequestUserDelete struct {
-	Id string `json:"id"`
+	Id int `json:"id"`
 }
 
 type RequestUserGet struct {
-	Id string `json:"id"`
+	Id int `json:"id"`
 }
 
 type ResponseUserAdd struct {

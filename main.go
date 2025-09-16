@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/DreamerVulpi/bracket/handler"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type apiHandler struct{}
@@ -26,27 +26,16 @@ func main() {
 		}
 		fmt.Fprintf(w, "Welcome to the home page!")
 	})
-	mux.HandleFunc("POST /api/v1/user", handler.AddHandler)
-	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteHandler)
-	mux.HandleFunc("PATCH /api/v1/user", handler.EditHandler)
-	mux.HandleFunc("GET /api/v1/user", handler.GetHandler)
 
 	// FIXME: Vulnarable
-	conn, err := pgx.Connect(context.Background(), "postgresql://superuser:1234@localhost:5432/bracketProject")
-	if err != nil {
-		fmt.Printf("Unable to connect to database, %s", err)
-		return
-	}
-	defer conn.Close(context.Background())
+	pool, err := pgxpool.New(context.Background(), "postgresql://superuser:1234@localhost:5432/bracketProject")
 
-	var greeting string
-	err = conn.QueryRow(context.Background(), "select 'Hello, world!'").Scan(&greeting)
-	if err != nil {
-		fmt.Printf("QueryRow failed")
-		return
-	}
+	handler := &handler.Handler{Conn: pool}
 
-	fmt.Println(greeting)
+	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
+	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)
+	mux.HandleFunc("PATCH /api/v1/user", handler.EditUser)
+	mux.HandleFunc("GET /api/v1/user", handler.GetUser)
 
 	sqlBytes, err := os.ReadFile("init.sql")
 	if err != nil {
@@ -54,7 +43,7 @@ func main() {
 		return
 	}
 
-	_, err = conn.Exec(context.Background(), string(sqlBytes))
+	_, err = pool.Exec(context.Background(), string(sqlBytes))
 	if err != nil {
 		fmt.Printf("Can't init database %s", err)
 	}

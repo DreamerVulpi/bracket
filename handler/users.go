@@ -8,7 +8,12 @@ import (
 
 	"github.com/DreamerVulpi/bracket/entity"
 	"github.com/DreamerVulpi/bracket/usecase"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type Handler struct {
+	Conn *pgxpool.Pool
+}
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
 	var req T
@@ -25,7 +30,7 @@ func readRequest[T any](body io.ReadCloser) (T, error) {
 	return req, nil
 }
 
-func AddHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Add")
 	result, err := readRequest[entity.RequestUserAdd](r.Body)
 	if err != nil {
@@ -33,7 +38,7 @@ func AddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := usecase.AddUser(result)
+	response, err := usecase.AddUser(h.Conn, result)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -41,7 +46,7 @@ func AddHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(response.Id)
 }
 
-func EditHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Edit")
 	player, err := readRequest[entity.RequestUserEdit](r.Body)
 	if err != nil {
@@ -49,14 +54,14 @@ func EditHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = usecase.EditUser(player)
+	err = usecase.EditUser(h.Conn, player)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 }
 
-func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Delete")
 	id, err := readRequest[entity.RequestUserDelete](r.Body)
 	if err != nil {
@@ -64,14 +69,14 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = usecase.DeleteUser(id)
+	err = usecase.DeleteUser(h.Conn, id)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 }
 
-func GetHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Get")
 	result, err := readRequest[entity.RequestUserGet](r.Body)
 	if err != nil {
@@ -79,7 +84,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player, err := usecase.GetUser(result)
+	player, err := usecase.GetUser(h.Conn, result)
 	if err != nil {
 		fmt.Println(err)
 		return
