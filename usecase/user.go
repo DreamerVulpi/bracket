@@ -1,73 +1,63 @@
 package usecase
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func AddUser(conn *pgxpool.Pool, request entity.RequestUserAdd) (entity.ResponseUserAdd, error) {
-	if request.Nickname == "" {
-		return entity.ResponseUserAdd{}, fmt.Errorf("failed ADD user")
-	}
-
-	sql := "INSERT INTO \"users\" (Nickname) VALUES ($1) RETURNING id;"
-	var userId int
-	err := conn.QueryRow(context.Background(), sql, request.Nickname).Scan(&userId)
-	if err != nil {
-		fmt.Printf("Unable to add to database, %s", err)
-		return entity.ResponseUserAdd{}, fmt.Errorf("failed ADD user (add db)")
-	}
-
-	return entity.ResponseUserAdd{Id: userId}, nil
+type UserRepo interface {
+	Add(nickname string) (int, error)
+	Get(id int) (entity.User, error)
+	Delete(id int) error
+	Edit(player entity.User) error
 }
 
-func EditUser(conn *pgxpool.Pool, request entity.RequestUserEdit) error {
-	if request.Player.Id == 0 {
-		return fmt.Errorf("failed EDIT user: no ID")
-	}
-
-	sql := "UPDATE users SET Nickname = $1 WHERE Id = $2;"
-	_, err := conn.Exec(context.Background(), sql, request.Player.Nickname, request.Player.Id)
-	if err != nil {
-		fmt.Printf("Unable to add to database, %s", err)
-		return fmt.Errorf("failed ADD user (add db)")
-	}
-
-	return nil
+type User struct {
+	repo UserRepo
 }
 
-func DeleteUser(conn *pgxpool.Pool, request entity.RequestUserDelete) error {
-	if request.Id == 0 {
-		return fmt.Errorf("failed DELETE user: no ID")
+func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, error) {
+	id, err := u.repo.Add(request.Nickname)
+	if err != nil {
+		return entity.UserAddResponse{}, err
+	}
+
+	return entity.UserAddResponse{Id: id}, nil
+}
+
+func (u *User) EditUser(request entity.UserEditRequest) (entity.UserEditResponse, error) {
+	user, err := u.repo.Get(request.Player.Id)
+	if err != nil {
+		return entity.UserEditResponse{}, err
+	}
+
+	err = u.repo.Edit(user)
+	if err != nil {
+		return entity.UserEditResponse{}, err
+	}
+
+	return entity.UserEditResponse{}, nil
+}
+
+func (u *User) DeleteUser(request entity.UserDeleteRequest) (entity.UserDeleteResponse, error) {
+	user, err := u.repo.Get(request.Id)
+	if err != nil {
+		return entity.UserDeleteResponse{}, err
 	}
 
 	// TODO: CASCADE?
-	sql := "DELETE FROM users WHERE Id = $1;"
-	_, err := conn.Exec(context.Background(), sql, request.Id)
+	err = u.repo.Delete(user.Id)
 	if err != nil {
-		fmt.Printf("Unable to delete to database, %s", err)
-		return fmt.Errorf("failed DELETE user")
+		return entity.UserDeleteResponse{}, err
 	}
 
-	fmt.Println("correct delete")
-	return nil
+	return entity.UserDeleteResponse{}, nil
 }
 
-func GetUser(conn *pgxpool.Pool, request entity.RequestUserGet) (entity.ResponseUserGet, error) {
-	if request.Id == 0 {
-		return entity.ResponseUserGet{}, fmt.Errorf("failed GET user: no ID")
-	}
-
-	sql := "SELECT * FROM users WHERE Id = $1;"
-	var user entity.User
-	err := conn.QueryRow(context.Background(), sql, request.Id).Scan(&user.Id, &user.Nickname)
+func (u *User) GetUser(request entity.UserGetRequest) (entity.UserGetResponse, error) {
+	user, err := u.repo.Get(request.Id)
 	if err != nil {
-		fmt.Printf("Unable to get to database, %s", err)
-		return entity.ResponseUserGet{}, fmt.Errorf("failed GET user")
+		return entity.UserGetResponse{}, err
 	}
 
-	return entity.ResponseUserGet{Player: user}, nil
+	return entity.UserGetResponse{Player: user}, nil
 }

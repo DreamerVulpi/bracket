@@ -5,30 +5,30 @@ type User struct {
 	Nickname string `json:"nickname"`
 }
 
-type RequestUserAdd struct {
+type UserAddRequest struct {
 	Nickname string `json:"nickname"`
 }
 
-type RequestUserEdit struct {
+type UserEditRequest struct {
 	Player User `json:"player"`
 }
 
-type RequestUserDelete struct {
+type UserDeleteRequest struct {
 	Id int `json:"id"`
 }
 
-type RequestUserGet struct {
+type UserGetRequest struct {
 	Id int `json:"id"`
 }
 
-type ResponseUserAdd struct {
+type UserAddResponse struct {
 	Id int `json:"id"`
 }
 
-type ResponseUserEdit struct{}
+type UserEditResponse struct{}
 
-type ResponseUserDelete struct{}
+type UserDeleteResponse struct{}
 
-type ResponseUserGet struct {
+type UserGetResponse struct {
 	Player User `json:"player"`
 }

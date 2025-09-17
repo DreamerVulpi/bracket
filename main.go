@@ -30,7 +30,7 @@ func main() {
 	// FIXME: Vulnarable
 	pool, err := pgxpool.New(context.Background(), "postgresql://superuser:1234@localhost:5432/bracketProject")
 
-	handler := &handler.Handler{Conn: pool}
+	handler := &handler.Handler{}
 
 	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
 	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)
