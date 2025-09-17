@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/DreamerVulpi/bracket/entity"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,7 +14,7 @@ type User struct {
 }
 
 func (u *User) Add(nickname string) (int, error) {
-	const sql = "INSERT INTO users (Nickname) VALUES ($1) RETURNING id"
+	const sql = "INSERT INTO users (nickname) VALUES ($1) RETURNING id"
 
 	var id int
 
@@ -39,9 +40,10 @@ func (u *User) Get(id int) (entity.User, error) {
 }
 
 func (u *User) Edit(player entity.User) error {
-	const sql = "UPDATE users u SET u.nickname = $1 WHERE u.id = $2"
+	const sql = "UPDATE users SET nickname = $1 WHERE id = $2"
 
 	tag, err := u.Conn.Exec(context.Background(), sql, player.Nickname, player.Id)
+	log.Println(player)
 	if err != nil || tag.RowsAffected() == 0 {
 		return fmt.Errorf("unable to edit user from database, %w", err)
 	}

@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 
 	"context"
 
+	"github.com/DreamerVulpi/bracket/config"
 	"github.com/DreamerVulpi/bracket/handler"
+	"github.com/DreamerVulpi/bracket/repo"
+	"github.com/DreamerVulpi/bracket/usecase"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-type apiHandler struct{}
-
-func (apiHandler) ServeHTTP(http.ResponseWriter, *http.Request) {}
 
 func main() {
 	mux := http.NewServeMux()
@@ -27,26 +26,26 @@ func main() {
 		fmt.Fprintf(w, "Welcome to the home page!")
 	})
 
-	// FIXME: Vulnarable
-	pool, err := pgxpool.New(context.Background(), "postgresql://superuser:1234@localhost:5432/bracketProject")
+	cfg, err := config.LoadConfig("config/config.toml")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-	handler := &handler.Handler{}
+	pool, err := pgxpool.New(context.Background(), cfg.Db.Dsn)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	repo := repo.User{Conn: pool}
+	usecase := usecase.User{Repo: &repo}
+	handler := &handler.Handler{Use: usecase}
 
 	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
 	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)
 	mux.HandleFunc("PATCH /api/v1/user", handler.EditUser)
 	mux.HandleFunc("GET /api/v1/user", handler.GetUser)
-
-	sqlBytes, err := os.ReadFile("init.sql")
-	if err != nil {
-		fmt.Printf("Read Sql file failed %s", err)
-		return
-	}
-
-	_, err = pool.Exec(context.Background(), string(sqlBytes))
-	if err != nil {
-		fmt.Printf("Can't init database %s", err)
-	}
 
 	// Запускаем сервер на порту 8080
 	fmt.Println("Starting server at port 8080")

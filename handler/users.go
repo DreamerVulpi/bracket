@@ -12,7 +12,7 @@ import (
 )
 
 type Handler struct {
-	use usecase.User
+	Use usecase.User
 }
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
@@ -37,7 +37,7 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.use.AddUser(result)
+	response, err := h.Use.AddUser(result)
 	if err != nil {
 		log.Println(err)
 		return
@@ -58,7 +58,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.use.EditUser(player)
+	response, err := h.Use.EditUser(player)
 	if err != nil {
 		log.Println(err)
 		return
@@ -79,7 +79,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.use.DeleteUser(id)
+	response, err := h.Use.DeleteUser(id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -101,7 +101,7 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.use.GetUser(result)
+	response, err := h.Use.GetUser(result)
 	if err != nil {
 		log.Println(err)
 		return

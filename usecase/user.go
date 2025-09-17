@@ -12,11 +12,11 @@ type UserRepo interface {
 }
 
 type User struct {
-	repo UserRepo
+	Repo UserRepo
 }
 
 func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, error) {
-	id, err := u.repo.Add(request.Nickname)
+	id, err := u.Repo.Add(request.Nickname)
 	if err != nil {
 		return entity.UserAddResponse{}, err
 	}
@@ -25,12 +25,12 @@ func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, e
 }
 
 func (u *User) EditUser(request entity.UserEditRequest) (entity.UserEditResponse, error) {
-	user, err := u.repo.Get(request.Player.Id)
+	_, err := u.Repo.Get(request.Player.Id)
 	if err != nil {
 		return entity.UserEditResponse{}, err
 	}
 
-	err = u.repo.Edit(user)
+	err = u.Repo.Edit(entity.User{Id: request.Player.Id, Nickname: request.Player.Nickname})
 	if err != nil {
 		return entity.UserEditResponse{}, err
 	}
@@ -39,13 +39,13 @@ func (u *User) EditUser(request entity.UserEditRequest) (entity.UserEditResponse
 }
 
 func (u *User) DeleteUser(request entity.UserDeleteRequest) (entity.UserDeleteResponse, error) {
-	user, err := u.repo.Get(request.Id)
+	user, err := u.Repo.Get(request.Id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
 
 	// TODO: CASCADE?
-	err = u.repo.Delete(user.Id)
+	err = u.Repo.Delete(user.Id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
@@ -54,7 +54,7 @@ func (u *User) DeleteUser(request entity.UserDeleteRequest) (entity.UserDeleteRe
 }
 
 func (u *User) GetUser(request entity.UserGetRequest) (entity.UserGetResponse, error) {
-	user, err := u.repo.Get(request.Id)
+	user, err := u.Repo.Get(request.Id)
 	if err != nil {
 		return entity.UserGetResponse{}, err
 	}
