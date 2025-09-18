@@ -12,7 +12,7 @@ import (
 )
 
 type Handler struct {
-	UseUsecase usecase.User
+	UserUsecase usecase.User
 }
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
