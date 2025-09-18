@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/DreamerVulpi/bracket/entity"
 	"github.com/DreamerVulpi/bracket/usecase"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Handler struct {
-	Conn *pgxpool.Pool
+	UserUsecase usecase.User
 }
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
@@ -30,64 +30,79 @@ func readRequest[T any](body io.ReadCloser) (T, error) {
 	return req, nil
 }
 
-func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Add")
-	result, err := readRequest[entity.RequestUserAdd](r.Body)
+func jsonResponse(w http.ResponseWriter, response any) {
+	responseJson, err := json.Marshal(response)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		return
+	}
+	w.Write(responseJson)
+}
+
+func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
+	result, err := readRequest[entity.UserAddRequest](r.Body)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	response, err := usecase.AddUser(h.Conn, result)
+	response, err := h.UserUsecase.AddUser(result)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
-	fmt.Println(response.Id)
+
+	jsonResponse(w, response)
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Edit")
-	player, err := readRequest[entity.RequestUserEdit](r.Body)
+	player, err := readRequest[entity.UserEditRequest](r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
-	err = usecase.EditUser(h.Conn, player)
+	response, err := h.UserUsecase.EditUser(player)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonResponse(w, response)
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Delete")
-	id, err := readRequest[entity.RequestUserDelete](r.Body)
+	id, err := readRequest[entity.UserDeleteRequest](r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
-	err = usecase.DeleteUser(h.Conn, id)
+	response, err := h.UserUsecase.DeleteUser(id)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonResponse(w, response)
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Get")
-	result, err := readRequest[entity.RequestUserGet](r.Body)
+	result, err := readRequest[entity.UserGetRequest](r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
-	player, err := usecase.GetUser(h.Conn, result)
+	response, err := h.UserUsecase.GetUser(result)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
-	fmt.Println(player)
+
+	jsonResponse(w, response)
 }
