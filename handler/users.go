@@ -46,7 +46,7 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UseUsecase.AddUser(result)
+	response, err := h.UserUsecase.AddUser(result)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -63,7 +63,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UseUsecase.EditUser(player)
+	response, err := h.UserUsecase.EditUser(player)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -80,7 +80,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UseUsecase.DeleteUser(id)
+	response, err := h.UserUsecase.DeleteUser(id)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -97,7 +97,7 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UseUsecase.GetUser(result)
+	response, err := h.UserUsecase.GetUser(result)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
