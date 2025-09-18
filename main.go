@@ -40,7 +40,7 @@ func main() {
 
 	repo := repo.User{Conn: pool}
 	usecase := usecase.User{Repo: &repo}
-	handler := &handler.Handler{Use: usecase}
+	handler := &handler.Handler{UseUsecase: usecase}
 
 	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
 	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)

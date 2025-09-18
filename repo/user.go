@@ -44,8 +44,12 @@ func (u *User) Edit(player entity.User) error {
 
 	tag, err := u.Conn.Exec(context.Background(), sql, player.Nickname, player.Id)
 	log.Println(player)
-	if err != nil || tag.RowsAffected() == 0 {
+	if err != nil {
 		return fmt.Errorf("unable to edit user from database, %w", err)
+	}
+
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("user doesn't exist")
 	}
 
 	return nil
@@ -55,8 +59,12 @@ func (u *User) Delete(id int) error {
 	const sql = "DELETE FROM users WHERE id = $1"
 
 	tag, err := u.Conn.Exec(context.Background(), sql, id)
-	if err != nil || tag.RowsAffected() == 0 {
+	if err != nil {
 		return fmt.Errorf("don't deleted user from database, %w", err)
+	}
+
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("user doesn't exist")
 	}
 
 	return nil

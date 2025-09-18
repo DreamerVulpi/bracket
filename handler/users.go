@@ -12,7 +12,7 @@ import (
 )
 
 type Handler struct {
-	Use usecase.User
+	UseUsecase usecase.User
 }
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
@@ -30,6 +30,15 @@ func readRequest[T any](body io.ReadCloser) (T, error) {
 	return req, nil
 }
 
+func jsonResponse(w http.ResponseWriter, response any) {
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	w.Write(responseJson)
+}
+
 func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 	result, err := readRequest[entity.UserAddRequest](r.Body)
 	if err != nil {
@@ -37,18 +46,14 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.Use.AddUser(result)
+	response, err := h.UseUsecase.AddUser(result)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(responseJson)
+	jsonResponse(w, response)
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
@@ -58,18 +63,14 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.Use.EditUser(player)
+	response, err := h.UseUsecase.EditUser(player)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(responseJson)
+	jsonResponse(w, response)
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -79,19 +80,14 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.Use.DeleteUser(id)
+	response, err := h.UseUsecase.DeleteUser(id)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	w.Write(responseJson)
+	jsonResponse(w, response)
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -101,17 +97,12 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.Use.GetUser(result)
+	response, err := h.UseUsecase.GetUser(result)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	w.Write(responseJson)
+	jsonResponse(w, response)
 }
