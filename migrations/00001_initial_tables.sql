@@ -36,7 +36,6 @@ CREATE TABLE sets
     id SERIAL PRIMARY KEY,
     player1_id INTEGER REFERENCES users (id),
     player2_id INTEGER REFERENCES users (id),
-    -- pool_id INTEGER
     pool_id INTEGER REFERENCES pools (id)
 );
 -- +goose StatementEnd
