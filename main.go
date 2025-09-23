@@ -44,10 +44,12 @@ func main() {
 	// TODO: repo universal
 	userUsecase := usecase.User{Repo: &repo.User{Conn: pool}}
 	setUsecase := usecase.Set{Repo: &repo.Set{Conn: pool}}
+	poolUsecase := usecase.Pool{Repo: &repo.Pool{Conn: pool}}
 
 	handler := &handler.Handler{
 		UserUsecase: userUsecase,
 		SetUsecase:  setUsecase,
+		PoolUsecase: poolUsecase,
 	}
 
 	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
@@ -59,6 +61,11 @@ func main() {
 	mux.HandleFunc("DELETE /api/v1/set", handler.DeleteSet)
 	mux.HandleFunc("PATCH /api/v1/set", handler.EditSet)
 	mux.HandleFunc("GET /api/v1/set", handler.GetSet)
+
+	mux.HandleFunc("POST /api/v1/pool", handler.AddPool)
+	mux.HandleFunc("DELETE /api/v1/pool", handler.DeletePool)
+	mux.HandleFunc("PATCH /api/v1/pool", handler.EditPool)
+	mux.HandleFunc("GET /api/v1/pool", handler.GetPool)
 
 	// Запускаем сервер на порту 8080
 	fmt.Println("Starting server at port 8080")

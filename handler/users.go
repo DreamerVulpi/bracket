@@ -14,6 +14,7 @@ import (
 type Handler struct {
 	UserUsecase usecase.User
 	SetUsecase  usecase.Set
+	PoolUsecase usecase.Pool
 }
 
 func readRequest[T any](body io.ReadCloser) (T, error) {
