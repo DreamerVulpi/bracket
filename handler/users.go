@@ -22,7 +22,11 @@ func readRequest[T any](body io.ReadCloser) (T, error) {
 	if err != nil {
 		return req, fmt.Errorf("read request body: %w", err)
 	}
-	defer body.Close()
+	defer func() {
+		if err := body.Close(); err != nil {
+			log.Printf("close request body: %v", err)
+		}
+	}()
 
 	if err := json.Unmarshal(jsonData, &req); err != nil {
 		return req, fmt.Errorf("unmarshal request body: %w", err)
@@ -37,7 +41,11 @@ func jsonResponse(w http.ResponseWriter, response any) {
 		log.Println(err)
 		return
 	}
-	w.Write(responseJson)
+	_, err = w.Write(responseJson)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {

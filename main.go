@@ -23,7 +23,10 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
-		fmt.Fprintf(w, "Welcome to the home page!")
+		if _, err := fmt.Fprintf(w, "Welcome to the home page!"); err != nil {
+			log.Println(err)
+			return
+		}
 	})
 
 	cfg, err := config.LoadConfig("config/config.toml")
