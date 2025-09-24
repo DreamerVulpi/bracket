@@ -1,5 +1,5 @@
 name: workflow
-on: workflow_push
+on: [push]
 
 jobs:
   go:
