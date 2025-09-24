@@ -23,7 +23,10 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
-		fmt.Fprintf(w, "Welcome to the home page!")
+		if _, err := fmt.Fprintf(w, "Welcome to the home page!"); err != nil {
+			log.Println(err)
+			return
+		}
 	})
 
 	cfg, err := config.LoadConfig("config/config.toml")
@@ -38,14 +41,24 @@ func main() {
 		return
 	}
 
-	repo := repo.User{Conn: pool}
-	usecase := usecase.User{Repo: &repo}
-	handler := &handler.Handler{UserUsecase: usecase}
+	// TODO: repo universal
+	userUsecase := usecase.User{Repo: &repo.User{Conn: pool}}
+	setUsecase := usecase.Set{Repo: &repo.Set{Conn: pool}}
+
+	handler := &handler.Handler{
+		UserUsecase: userUsecase,
+		SetUsecase:  setUsecase,
+	}
 
 	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
 	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)
 	mux.HandleFunc("PATCH /api/v1/user", handler.EditUser)
 	mux.HandleFunc("GET /api/v1/user", handler.GetUser)
+
+	mux.HandleFunc("POST /api/v1/set", handler.AddSet)
+	mux.HandleFunc("DELETE /api/v1/set", handler.DeleteSet)
+	mux.HandleFunc("PATCH /api/v1/set", handler.EditSet)
+	mux.HandleFunc("GET /api/v1/set", handler.GetSet)
 
 	// Запускаем сервер на порту 8080
 	fmt.Println("Starting server at port 8080")
