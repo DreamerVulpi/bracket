@@ -1,0 +1,76 @@
+package handler
+
+import (
+	"log"
+	"net/http"
+
+	"github.com/DreamerVulpi/bracket/entity"
+)
+
+func (h *Handler) AddPool(w http.ResponseWriter, r *http.Request) {
+	result, err := readRequest[entity.PoolAddRequest](r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	response, err := h.PoolUsecase.AddPool(result)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonResponse(w, response)
+}
+
+func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
+	pool, err := readRequest[entity.PoolEditRequest](r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	response, err := h.PoolUsecase.EditPool(pool)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonResponse(w, response)
+}
+
+func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
+	id, err := readRequest[entity.PoolDeleteRequest](r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	response, err := h.PoolUsecase.DeletePool(id)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonResponse(w, response)
+}
+
+func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
+	result, err := readRequest[entity.PoolGetRequest](r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	response, err := h.PoolUsecase.GetPool(result)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonResponse(w, response)
+}
