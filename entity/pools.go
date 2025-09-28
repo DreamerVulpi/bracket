@@ -13,14 +13,6 @@ type PoolEditRequest struct {
 	Pool Pool `json:"pool"`
 }
 
-type PoolDeleteRequest struct {
-	Id int `json:"id"`
-}
-
-type PoolGetRequest struct {
-	Id int `json:"id"`
-}
-
 type PoolAddResponse struct {
 	Id int `json:"id"`
 }

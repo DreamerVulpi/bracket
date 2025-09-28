@@ -22,13 +22,13 @@ func (p *Pool) AddPool(request entity.PoolAddRequest) (entity.PoolAddResponse, e
 	return entity.PoolAddResponse{Id: id}, nil
 }
 
-func (p *Pool) EditPool(request entity.PoolEditRequest) (entity.PoolEditResponse, error) {
-	_, err := p.Repo.Get(request.Pool.Id)
+func (p *Pool) EditPool(id int, request entity.PoolEditRequest) (entity.PoolEditResponse, error) {
+	_, err := p.Repo.Get(id)
 	if err != nil {
 		return entity.PoolEditResponse{}, err
 	}
 
-	err = p.Repo.Edit(entity.Pool{Id: request.Pool.Id, BracketId: request.Pool.BracketId})
+	err = p.Repo.Edit(entity.Pool{Id: id, BracketId: request.Pool.BracketId})
 	if err != nil {
 		return entity.PoolEditResponse{}, err
 	}
@@ -36,8 +36,8 @@ func (p *Pool) EditPool(request entity.PoolEditRequest) (entity.PoolEditResponse
 	return entity.PoolEditResponse{}, nil
 }
 
-func (p *Pool) DeletePool(request entity.PoolDeleteRequest) (entity.PoolDeleteResponse, error) {
-	pool, err := p.Repo.Get(request.Id)
+func (p *Pool) DeletePool(id int) (entity.PoolDeleteResponse, error) {
+	pool, err := p.Repo.Get(id)
 	if err != nil {
 		return entity.PoolDeleteResponse{}, err
 	}
@@ -51,8 +51,8 @@ func (p *Pool) DeletePool(request entity.PoolDeleteRequest) (entity.PoolDeleteRe
 	return entity.PoolDeleteResponse{}, nil
 }
 
-func (p *Pool) GetPool(request entity.PoolGetRequest) (entity.PoolGetResponse, error) {
-	pool, err := p.Repo.Get(request.Id)
+func (p *Pool) GetPool(id int) (entity.PoolGetResponse, error) {
+	pool, err := p.Repo.Get(id)
 	if err != nil {
 		return entity.PoolGetResponse{}, err
 	}

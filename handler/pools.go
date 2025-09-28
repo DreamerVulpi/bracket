@@ -25,13 +25,20 @@ func (h *Handler) AddPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
-	pool, err := readJsonRequest[entity.PoolEditRequest](r.Body)
+	id, err := readParamIdRequest(r)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonRequest, err := readJsonRequest[entity.PoolEditRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	response, err := h.PoolUsecase.EditPool(pool)
+	response, err := h.PoolUsecase.EditPool(id, jsonRequest)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -42,9 +49,10 @@ func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
-	id, err := readJsonRequest[entity.PoolDeleteRequest](r.Body)
+	id, err := readParamIdRequest(r)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -59,13 +67,14 @@ func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
-	result, err := readJsonRequest[entity.PoolGetRequest](r.Body)
+	id, err := readParamIdRequest(r)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	response, err := h.PoolUsecase.GetPool(result)
+	response, err := h.PoolUsecase.GetPool(id)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
