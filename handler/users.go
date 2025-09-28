@@ -18,7 +18,7 @@ type Handler struct {
 	PoolUsecase usecase.Pool
 }
 
-func readParamIdRequest(w http.ResponseWriter, r *http.Request) (int, error) {
+func readParamIdRequest(r *http.Request) (int, error) {
 	query := r.URL.Query()
 	id, err := strconv.Atoi(query.Get("id"))
 	if err != nil {
@@ -77,7 +77,7 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(w, r)
+	id, err := readParamIdRequest(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -101,7 +101,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(w, r)
+	id, err := readParamIdRequest(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -119,7 +119,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(w, r)
+	id, err := readParamIdRequest(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
