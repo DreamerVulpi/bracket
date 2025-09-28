@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/DreamerVulpi/bracket/entity"
 	"github.com/DreamerVulpi/bracket/usecase"
@@ -17,7 +18,16 @@ type Handler struct {
 	PoolUsecase usecase.Pool
 }
 
-func readRequest[T any](body io.ReadCloser) (T, error) {
+func readParamIdRequest(w http.ResponseWriter, r *http.Request) (int, error) {
+	query := r.URL.Query()
+	id, err := strconv.Atoi(query.Get("id"))
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func readJsonRequest[T any](body io.ReadCloser) (T, error) {
 	var req T
 	jsonData, err := io.ReadAll(body)
 	if err != nil {
@@ -50,13 +60,13 @@ func jsonResponse(w http.ResponseWriter, response any) {
 }
 
 func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.UserAddRequest](r.Body)
+	jsonRequest, err := readJsonRequest[entity.UserAddRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	response, err := h.UserUsecase.AddUser(result)
+	response, err := h.UserUsecase.AddUser(jsonRequest)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -67,13 +77,20 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	player, err := readRequest[entity.UserEditRequest](r.Body)
+	id, err := readParamIdRequest(w, r)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonRequest, err := readJsonRequest[entity.UserEditRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	response, err := h.UserUsecase.EditUser(player)
+	response, err := h.UserUsecase.EditUser(id, jsonRequest)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -84,9 +101,10 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readRequest[entity.UserDeleteRequest](r.Body)
+	id, err := readParamIdRequest(w, r)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -101,13 +119,14 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.UserGetRequest](r.Body)
+	id, err := readParamIdRequest(w, r)
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	response, err := h.UserUsecase.GetUser(result)
+	response, err := h.UserUsecase.GetUser(id)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})

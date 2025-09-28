@@ -24,13 +24,13 @@ func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, e
 	return entity.UserAddResponse{Id: id}, nil
 }
 
-func (u *User) EditUser(request entity.UserEditRequest) (entity.UserEditResponse, error) {
-	_, err := u.Repo.Get(request.Player.Id)
+func (u *User) EditUser(id int, request entity.UserEditRequest) (entity.UserEditResponse, error) {
+	_, err := u.Repo.Get(id)
 	if err != nil {
 		return entity.UserEditResponse{}, err
 	}
 
-	err = u.Repo.Edit(entity.User{Id: request.Player.Id, Nickname: request.Player.Nickname})
+	err = u.Repo.Edit(entity.User{Id: id, Nickname: request.Nickname})
 	if err != nil {
 		return entity.UserEditResponse{}, err
 	}
@@ -38,8 +38,8 @@ func (u *User) EditUser(request entity.UserEditRequest) (entity.UserEditResponse
 	return entity.UserEditResponse{}, nil
 }
 
-func (u *User) DeleteUser(request entity.UserDeleteRequest) (entity.UserDeleteResponse, error) {
-	user, err := u.Repo.Get(request.Id)
+func (u *User) DeleteUser(id int) (entity.UserDeleteResponse, error) {
+	user, err := u.Repo.Get(id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
@@ -53,8 +53,8 @@ func (u *User) DeleteUser(request entity.UserDeleteRequest) (entity.UserDeleteRe
 	return entity.UserDeleteResponse{}, nil
 }
 
-func (u *User) GetUser(request entity.UserGetRequest) (entity.UserGetResponse, error) {
-	user, err := u.Repo.Get(request.Id)
+func (u *User) GetUser(id int) (entity.UserGetResponse, error) {
+	user, err := u.Repo.Get(id)
 	if err != nil {
 		return entity.UserGetResponse{}, err
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.SetAddRequest](r.Body)
+	result, err := readJsonRequest[entity.SetAddRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -25,7 +25,7 @@ func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditSet(w http.ResponseWriter, r *http.Request) {
-	set, err := readRequest[entity.SetEditRequest](r.Body)
+	set, err := readJsonRequest[entity.SetEditRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -42,7 +42,7 @@ func (h *Handler) EditSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
-	id, err := readRequest[entity.SetDeleteRequest](r.Body)
+	id, err := readJsonRequest[entity.SetDeleteRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,7 +59,7 @@ func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetSet(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.SetGetRequest](r.Body)
+	result, err := readJsonRequest[entity.SetGetRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return

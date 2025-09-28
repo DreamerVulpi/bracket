@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) AddPool(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.PoolAddRequest](r.Body)
+	result, err := readJsonRequest[entity.PoolAddRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -25,7 +25,7 @@ func (h *Handler) AddPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
-	pool, err := readRequest[entity.PoolEditRequest](r.Body)
+	pool, err := readJsonRequest[entity.PoolEditRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -42,7 +42,7 @@ func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
-	id, err := readRequest[entity.PoolDeleteRequest](r.Body)
+	id, err := readJsonRequest[entity.PoolDeleteRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,7 +59,7 @@ func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.PoolGetRequest](r.Body)
+	result, err := readJsonRequest[entity.PoolGetRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
