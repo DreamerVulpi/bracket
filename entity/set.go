@@ -17,14 +17,6 @@ type SetEditRequest struct {
 	Set Set `json:"set"`
 }
 
-type SetDeleteRequest struct {
-	Id int `json:"id"`
-}
-
-type SetGetRequest struct {
-	Id int `json:"id"`
-}
-
 type SetAddResponse struct {
 	Id int `json:"id"`
 }
