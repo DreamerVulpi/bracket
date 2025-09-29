@@ -1,0 +1,598 @@
+openapi: 3.0.4
+
+info:
+  title: "Договоренность по работе с projectBracket"
+  version: '0.0.1'
+  
+tags:
+  - name: Users
+    description: (Пользователи = игроки)
+  - name: Sets
+    description: (Бои между игроками)
+  - name: Pools
+    description: (Пулы содержат бои)
+  
+paths:
+  /api/v1/user:
+    post:
+      tags:
+        - Users
+      summary: "Метод для создания сущности User"
+      requestBody:
+        description: "Необходимо передать никнейм игрока"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPostRequest'
+            example: 
+              nickname: "player1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPostResponse'
+        '400':
+          description: "Ошибка в запросе. Возвращает ошибку"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Users
+      summary: "Метод для получения сущности User"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) игрока
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id) игрока"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserGetRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGetResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Users
+      summary: "Метод для удаления сущности User"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) игрока
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id) игрока"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDeleteRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDeleteResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Users
+      summary: "Метод для редактирования сущности User"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) игрока
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id) игрока и поля с новыми значениями"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEditRequest'
+            example: 
+              player:
+                id: 1
+                nickname: "player1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEditResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/set:
+    post:
+      tags:
+        - Sets
+      summary: "Метод для создания сущности Set"
+      requestBody:
+        description: "Необходимо передать никнейм игрока 1 и 2, а также poolId"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPostRequest'
+            example: 
+              player1Id: 1
+              player2Id: 2
+              poolId: 1
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetPostResponse'
+        '400':
+          description: "Ошибка в запросе. Возвращает ошибку"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Sets
+      summary: "Метод для получения сущности Set"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) боя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGetRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGetResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Sets
+      summary: "Метод для удаления сущности Set"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) боя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDeleteRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDeleteResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Sets
+      summary: "Метод для редактирования сущности Set"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) боя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id) боя и поля с новыми значениями"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetEditRequest'
+            example: 
+              set:
+                id: 1
+                player1Id: 1
+                player2Id: 2
+                poolId: 1
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetEditResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/pool:
+    post:
+      tags:
+        - Pools
+      summary: "Метод для создания сущности Pool"
+      requestBody:
+        description: "Необходимо передать идентификатор (id) сущности Bracket"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolPostRequest'
+            example: 
+              bracketId: 1
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolPostResponse'
+        '400':
+          description: "Ошибка в запросе. Возвращает ошибку"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Pools
+      summary: "Метод для получения сущности Pool"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) пула
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolGetRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolGetResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Pools
+      summary: "Метод для удаления сущности Pool"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) пула
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolDeleteRequest'
+            example: 
+              id: "1"
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolDeleteResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Pools
+      summary: "Метод для редактирования сущности Pool"
+      parameters:
+        - name: id
+          in: query
+          description: Идентификатор (id) пула
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: "Необходимо передать идентификатор (id) боя и поля с новыми значениями"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolEditRequest'
+            example: 
+              set:
+                id: 1
+                player1Id: 1
+                player2Id: 2
+                poolId: 1
+      responses:
+        '200':
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolEditResponse'
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      
+    
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "unable to get player from database, ..."
+    PoolGetRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    PoolGetResponse:
+      type: object
+      properties:
+        set:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            bracketId:
+              type: integer
+              example: 1
+    PoolDeleteRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    PoolDeleteResponse:
+      type: object
+    PoolEditRequest:
+      type: object
+      properties:
+        player:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            bracketId:
+              type: integer
+              example: 1
+    PoolEditResponse:
+      type: object
+    PoolPostRequest:
+      type: object
+      properties:
+        bracketId:
+          type: integer
+          example: 1
+    PoolPostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    SetPostRequest:
+      type: object
+      properties:
+        player1Id:
+          type: integer
+          example: 1
+        player2Id:
+          type: integer
+          example: 2
+        poolId:
+          type: integer
+          example: 1
+    SetPostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    SetGetRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    SetGetResponse:
+      type: object
+      properties:
+        set:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            player1Id:
+              type: integer
+              example: 1
+            player2Id:
+              type: integer
+              example: 2
+            poolId:
+              type: integer
+              example: 1
+    SetDeleteRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    SetDeleteResponse:
+      type: object
+    SetEditRequest:
+      type: object
+      properties:
+        player:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            player1Id:
+              type: integer
+              example: 1
+            player2Id:
+              type: integer
+              example: 1
+            poolId:
+              type: integer
+              example: 1
+    SetEditResponse:
+      type: object
+    UserPostRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+          example: player1
+    UserPostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    UserGetRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    UserGetResponse:
+      type: object
+      properties:
+        player:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            nickname:
+              type: string
+              example: player1
+    UserDeleteRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    UserDeleteResponse:
+      type: object
+    UserEditRequest:
+      type: object
+      properties:
+        player:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            nickname:
+              type: string
+              example: player1
+    UserEditResponse:
+      type: object
