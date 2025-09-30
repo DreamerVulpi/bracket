@@ -10,6 +10,7 @@ import (
 
 	"github.com/DreamerVulpi/bracket/entity"
 	"github.com/DreamerVulpi/bracket/usecase"
+	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -19,8 +20,11 @@ type Handler struct {
 }
 
 func readParamIdRequest(r *http.Request) (int, error) {
-	query := r.URL.Query()
-	id, err := strconv.Atoi(query.Get("id"))
+	vars := mux.Vars(r)
+	if vars["id"] == "" {
+		return 0, fmt.Errorf("no Id in url string")
+	}
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		return 0, err
 	}
