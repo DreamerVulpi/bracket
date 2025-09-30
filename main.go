@@ -11,23 +11,12 @@ import (
 	"github.com/DreamerVulpi/bracket/handler"
 	"github.com/DreamerVulpi/bracket/repo"
 	"github.com/DreamerVulpi/bracket/usecase"
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		// The "/" pattern matches everything, so we need to check
-		// that we're at the root here.
-		if req.URL.Path != "/" {
-			http.NotFound(w, req)
-			return
-		}
-		if _, err := fmt.Fprintf(w, "Welcome to the home page!"); err != nil {
-			log.Println(err)
-			return
-		}
-	})
+	r := mux.NewRouter()
 
 	cfg, err := config.LoadConfig("config/config.toml")
 	if err != nil {
@@ -52,24 +41,24 @@ func main() {
 		PoolUsecase: poolUsecase,
 	}
 
-	mux.HandleFunc("POST /api/v1/user", handler.AddUser)
-	mux.HandleFunc("DELETE /api/v1/user", handler.DeleteUser)
-	mux.HandleFunc("PATCH /api/v1/user", handler.EditUser)
-	mux.HandleFunc("GET /api/v1/user", handler.GetUser)
+	r.HandleFunc("/api/v1/user", handler.AddUser)
+	r.HandleFunc("/api/v1/user/{id}", handler.DeleteUser).Methods("DELETE")
+	r.HandleFunc("/api/v1/user/{id}", handler.EditUser).Methods("PATCH")
+	r.HandleFunc("/api/v1/user/{id}", handler.GetUser).Methods("GET")
 
-	mux.HandleFunc("POST /api/v1/set", handler.AddSet)
-	mux.HandleFunc("DELETE /api/v1/set", handler.DeleteSet)
-	mux.HandleFunc("PATCH /api/v1/set", handler.EditSet)
-	mux.HandleFunc("GET /api/v1/set", handler.GetSet)
+	r.HandleFunc("/api/v1/set", handler.AddSet)
+	r.HandleFunc("/api/v1/set/{id}", handler.DeleteSet).Methods("DELETE")
+	r.HandleFunc("/api/v1/set/{id}", handler.EditSet).Methods("PATCH")
+	r.HandleFunc("/api/v1/set/{id}", handler.GetSet).Methods("GET")
 
-	mux.HandleFunc("POST /api/v1/pool", handler.AddPool)
-	mux.HandleFunc("DELETE /api/v1/pool", handler.DeletePool)
-	mux.HandleFunc("PATCH /api/v1/pool", handler.EditPool)
-	mux.HandleFunc("GET /api/v1/pool", handler.GetPool)
+	r.HandleFunc("/api/v1/pool", handler.AddPool)
+	r.HandleFunc("/api/v1/pool/{id}", handler.DeletePool).Methods("DELETE")
+	r.HandleFunc("/api/v1/pool/{id}", handler.EditPool).Methods("PATCH")
+	r.HandleFunc("/api/v1/pool/{id}", handler.GetPool).Methods("GET")
 
 	// Запускаем сервер на порту 8080
 	fmt.Println("Starting server at port 8080")
-	err = http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}

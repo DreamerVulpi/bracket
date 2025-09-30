@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.SetAddRequest](r.Body)
+	result, err := readJsonRequest[entity.SetAddRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -25,13 +25,20 @@ func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditSet(w http.ResponseWriter, r *http.Request) {
-	set, err := readRequest[entity.SetEditRequest](r.Body)
+	id, err := readParamInt(r, "id")
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonRequest, err := readJsonRequest[entity.SetEditRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	response, err := h.SetUsecase.EditSet(set)
+	response, err := h.SetUsecase.EditSet(id, jsonRequest)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -42,9 +49,10 @@ func (h *Handler) EditSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
-	id, err := readRequest[entity.SetDeleteRequest](r.Body)
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -59,13 +67,14 @@ func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetSet(w http.ResponseWriter, r *http.Request) {
-	result, err := readRequest[entity.SetGetRequest](r.Body)
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	response, err := h.SetUsecase.GetSet(result)
+	response, err := h.SetUsecase.GetSet(id)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})

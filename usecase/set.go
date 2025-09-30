@@ -23,13 +23,13 @@ func (s *Set) AddSet(request entity.SetAddRequest) (entity.SetAddResponse, error
 	return entity.SetAddResponse{Id: id}, nil
 }
 
-func (s *Set) EditSet(request entity.SetEditRequest) (entity.SetEditResponse, error) {
-	_, err := s.Repo.Get(request.Set.Id)
+func (s *Set) EditSet(id int, request entity.SetEditRequest) (entity.SetEditResponse, error) {
+	_, err := s.Repo.Get(id)
 	if err != nil {
 		return entity.SetEditResponse{}, err
 	}
 
-	err = s.Repo.Edit(entity.Set{Id: request.Set.Id, Player1Id: request.Set.Player1Id, Player2Id: request.Set.Player2Id, PoolId: request.Set.PoolId})
+	err = s.Repo.Edit(entity.Set{Id: id, Player1Id: request.Set.Player1Id, Player2Id: request.Set.Player2Id, PoolId: request.Set.PoolId})
 	if err != nil {
 		return entity.SetEditResponse{}, err
 	}
@@ -37,13 +37,13 @@ func (s *Set) EditSet(request entity.SetEditRequest) (entity.SetEditResponse, er
 	return entity.SetEditResponse{}, nil
 }
 
-func (s *Set) DeleteSet(request entity.SetDeleteRequest) (entity.SetDeleteResponse, error) {
-	_, err := s.Repo.Get(request.Id)
+func (s *Set) DeleteSet(id int) (entity.SetDeleteResponse, error) {
+	_, err := s.Repo.Get(id)
 	if err != nil {
 		return entity.SetDeleteResponse{}, err
 	}
 
-	err = s.Repo.Delete(request.Id)
+	err = s.Repo.Delete(id)
 	if err != nil {
 		return entity.SetDeleteResponse{}, err
 	}
@@ -51,8 +51,8 @@ func (s *Set) DeleteSet(request entity.SetDeleteRequest) (entity.SetDeleteRespon
 	return entity.SetDeleteResponse{}, nil
 }
 
-func (s *Set) GetSet(request entity.SetGetRequest) (entity.SetGetResponse, error) {
-	set, err := s.Repo.Get(request.Id)
+func (s *Set) GetSet(id int) (entity.SetGetResponse, error) {
+	set, err := s.Repo.Get(id)
 	if err != nil {
 		return entity.SetGetResponse{}, err
 	}
