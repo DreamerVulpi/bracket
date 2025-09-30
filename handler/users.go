@@ -22,7 +22,7 @@ type Handler struct {
 func readParamInt(r *http.Request, name string) (int, error) {
 	vars := mux.Vars(r)
 	if vars[name] == "" {
-		return 0, fmt.Errorf("no Id in url string")
+		return 0, fmt.Errorf("no field called %v in url string", name)
 	}
 
 	id, err := strconv.Atoi(vars[name])
