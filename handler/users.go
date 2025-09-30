@@ -24,6 +24,7 @@ func readParamInt(r *http.Request, name string) (int, error) {
 	if vars[name] == "" {
 		return 0, fmt.Errorf("no Id in url string")
 	}
+
 	id, err := strconv.Atoi(vars[name])
 	if err != nil {
 		return 0, err
@@ -81,7 +82,6 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-
 	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
