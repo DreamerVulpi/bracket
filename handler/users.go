@@ -19,7 +19,7 @@ type Handler struct {
 	PoolUsecase usecase.Pool
 }
 
-func readParamIdRequest(r *http.Request) (int, error) {
+func readParamInt(r *http.Request) (int, error) {
 	vars := mux.Vars(r)
 	if vars["id"] == "" {
 		return 0, fmt.Errorf("no Id in url string")
@@ -81,7 +81,7 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(r)
+	id, err := readParamInt(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -105,7 +105,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(r)
+	id, err := readParamInt(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -123,7 +123,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamIdRequest(r)
+	id, err := readParamInt(r)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})

@@ -41,17 +41,17 @@ func main() {
 		PoolUsecase: poolUsecase,
 	}
 
-	r.HandleFunc("/api/v1/user/create", handler.AddUser).Methods("POST")
+	r.HandleFunc("/api/v1/user", handler.AddUser)
 	r.HandleFunc("/api/v1/user/{id}", handler.DeleteUser).Methods("DELETE")
 	r.HandleFunc("/api/v1/user/{id}", handler.EditUser).Methods("PATCH")
 	r.HandleFunc("/api/v1/user/{id}", handler.GetUser).Methods("GET")
 
-	r.HandleFunc("/api/v1/set/create", handler.AddSet).Methods("POST")
+	r.HandleFunc("/api/v1/set", handler.AddSet)
 	r.HandleFunc("/api/v1/set/{id}", handler.DeleteSet).Methods("DELETE")
 	r.HandleFunc("/api/v1/set/{id}", handler.EditSet).Methods("PATCH")
 	r.HandleFunc("/api/v1/set/{id}", handler.GetSet).Methods("GET")
 
-	r.HandleFunc("/api/v1/pool/create", handler.AddPool).Methods("POST")
+	r.HandleFunc("/api/v1/pool", handler.AddPool)
 	r.HandleFunc("/api/v1/pool/{id}", handler.DeletePool).Methods("DELETE")
 	r.HandleFunc("/api/v1/pool/{id}", handler.EditPool).Methods("PATCH")
 	r.HandleFunc("/api/v1/pool/{id}", handler.GetPool).Methods("GET")
