@@ -25,7 +25,7 @@ func (h *Handler) AddPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamInt(r)
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -49,7 +49,7 @@ func (h *Handler) EditPool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamInt(r)
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -67,7 +67,7 @@ func (h *Handler) DeletePool(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
-	id, err := readParamInt(r)
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
