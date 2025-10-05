@@ -9,7 +9,9 @@ import (
 	"strconv"
 
 	"github.com/DreamerVulpi/bracket/entity"
+	"github.com/DreamerVulpi/bracket/jwt"
 	"github.com/DreamerVulpi/bracket/usecase"
+	"github.com/emersion/go-bcrypt"
 	"github.com/gorilla/mux"
 )
 
@@ -78,10 +80,24 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := jwt.CreateJWTtoken(jsonRequest.Nickname)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	w.Header().Add("token", token)
+
 	jsonResponse(w, response)
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
+	_, err := jwt.VerifyToken(r.Header.Get("token"))
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
 	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
@@ -95,6 +111,15 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(jsonRequest.Password), 2)
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonRequest.Password = string(hash)
+
 	response, err := h.UserUsecase.EditUser(id, jsonRequest)
 	if err != nil {
 		log.Println(err)
@@ -106,6 +131,13 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	_, err := jwt.VerifyToken(r.Header.Get("token"))
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
 	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
@@ -124,6 +156,13 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+	_, err := jwt.VerifyToken(r.Header.Get("token"))
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
 	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)

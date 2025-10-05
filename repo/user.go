@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/DreamerVulpi/bracket/entity"
+	"github.com/DreamerVulpi/bracket/jwt"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -13,12 +14,17 @@ type User struct {
 	Conn *pgxpool.Pool
 }
 
-func (u *User) Add(nickname string) (int, error) {
-	const sql = "INSERT INTO users (nickname) VALUES ($1) RETURNING id"
+func (u *User) Add(nickname string, password string) (int, error) {
+	const sql = "INSERT INTO users (nickname, password, token) VALUES ($1, $2, $3) RETURNING id"
 
 	var id int
 
-	err := u.Conn.QueryRow(context.Background(), sql, nickname).Scan(&id)
+	tokenString, err := jwt.CreateJWTtoken(nickname)
+	if err != nil {
+		return 0, fmt.Errorf("can't create jwt token, %w", err)
+	}
+
+	err = u.Conn.QueryRow(context.Background(), sql, nickname, password, tokenString).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("unable to create player in database, %w", err)
 	}
@@ -27,13 +33,27 @@ func (u *User) Add(nickname string) (int, error) {
 }
 
 func (u *User) Get(id int) (entity.User, error) {
-	const sql = "SELECT u.id, u.nickname FROM users u WHERE id = $1"
+	const sql = "SELECT u.id, u.nickname, u.password FROM users u WHERE id = $1"
 
 	var user entity.User
 
-	err := u.Conn.QueryRow(context.Background(), sql, id).Scan(&user.Id, &user.Nickname)
+	var ignoredField any
+	err := u.Conn.QueryRow(context.Background(), sql, id).Scan(&user.Id, &user.Nickname, &ignoredField)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("unable to get from database, %w", err)
+	}
+
+	return user, nil
+}
+
+func (u *User) GetUserByNickname(nickname string) (entity.User, error) {
+	const sql = "SELECT u.id, u.password, u.token FROM users u WHERE nickname = $1"
+
+	var user entity.User
+
+	err := u.Conn.QueryRow(context.Background(), sql, nickname).Scan(&user.Id, &user.Password, &user.JWTtoken)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("unable to get from database using nickname, %w", err)
 	}
 
 	return user, nil
