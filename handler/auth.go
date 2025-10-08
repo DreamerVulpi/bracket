@@ -7,11 +7,9 @@ import (
 	"log"
 
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/DreamerVulpi/bracket/jwt"
 	"github.com/emersion/go-bcrypt"
 )
 
-// FIXME: Vulnerability - One user can edit another user
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	jsonRequest, err := readJsonRequest[entity.UserAddRequest](r.Body)
 	if err != nil {
@@ -50,7 +48,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
-	jsonRequest, err := readJsonRequest[entity.AuthenticationRegisterReguest](r.Body)
+	jsonRequest, err := readJsonRequest[entity.AuthRegisterReguest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -76,19 +74,44 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	jsonRequest.Password = string(hash)
 
-	response, err := h.UserUsecase.AddUser(entity.UserAddRequest(jsonRequest))
+	token, err := h.CreateJWTtoken(jsonRequest.Nickname)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	request := entity.UserAddRequest{
+		Nickname: jsonRequest.Nickname,
+		Password: jsonRequest.Password,
+		JWTtoken: token,
+	}
+
+	response, err := h.UserUsecase.AddUser(request)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	token, err := jwt.CreateJWTtoken(jsonRequest.Nickname)
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	w.Header().Add("token", token)
-
 	jsonResponse(w, response)
+}
+
+func (h *Handler) VerifyToken(id int, inputToken string) (bool, error) {
+	log.Printf("id = %v | inputToken = %v", id, inputToken)
+	response, err := h.AuthUsecase.GetUserToken(id)
+	if err != nil {
+		log.Println(err.Error())
+		return false, err
+	}
+
+	if len(inputToken) == 0 {
+		return false, fmt.Errorf("token field is empty")
+	}
+
+	if inputToken != response.Token {
+		return false, fmt.Errorf("token isn't correct for this account")
+	}
+
+	return true, nil
 }

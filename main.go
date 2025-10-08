@@ -12,7 +12,6 @@ import (
 	"github.com/DreamerVulpi/bracket/repo"
 	"github.com/DreamerVulpi/bracket/usecase"
 
-	// "github.com/emersion/go-bcrypt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -35,11 +34,14 @@ func main() {
 	userUsecase := usecase.User{Repo: &repo.User{Conn: pool}}
 	setUsecase := usecase.Set{Repo: &repo.Set{Conn: pool}}
 	poolUsecase := usecase.Pool{Repo: &repo.Pool{Conn: pool}}
+	authUsecase := usecase.Auth{Repo: &repo.Auth{Conn: pool}}
 
 	handler := &handler.Handler{
 		UserUsecase: userUsecase,
 		SetUsecase:  setUsecase,
 		PoolUsecase: poolUsecase,
+		AuthUsecase: authUsecase,
+		SecretKey:   cfg.Jwt.Key,
 	}
 
 	r.HandleFunc("/api/v1/login", handler.Login)

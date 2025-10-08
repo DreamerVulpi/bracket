@@ -9,16 +9,35 @@ import (
 	"strconv"
 
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/DreamerVulpi/bracket/jwt"
 	"github.com/DreamerVulpi/bracket/usecase"
 	"github.com/emersion/go-bcrypt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
 
 type Handler struct {
+	AuthUsecase usecase.Auth
 	UserUsecase usecase.User
 	SetUsecase  usecase.Set
 	PoolUsecase usecase.Pool
+	SecretKey   string
+}
+
+type Claims struct {
+	jwt.RegisteredClaims
+	Username string `json:"username"`
+}
+
+func (h *Handler) CreateJWTtoken(nickname string) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = Claims{Username: nickname}
+
+	tokenString, err := token.SignedString(h.SecretKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
 func readParamInt(r *http.Request, name string) (int, error) {
@@ -73,32 +92,43 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UserUsecase.AddUser(jsonRequest)
+	token, err := h.CreateJWTtoken(jsonRequest.Nickname)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	request := entity.UserAddRequest{
+		Nickname: jsonRequest.Nickname,
+		Password: jsonRequest.Password,
+		JWTtoken: token,
+	}
+
+	response, err := h.UserUsecase.AddUser(request)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	token, err := jwt.CreateJWTtoken(jsonRequest.Nickname)
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	w.Header().Add("token", token)
-
 	jsonResponse(w, response)
 }
 
 func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	_, err := jwt.VerifyToken(r.Header.Get("token"))
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	id, err := readParamInt(r, "id")
+	state, err := h.VerifyToken(id, r.Header.Get("token"))
+	if !state {
+		log.Println(fmt.Errorf("token isn't correct for this account"))
+		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
+		return
+	}
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -131,13 +161,6 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	_, err := jwt.VerifyToken(r.Header.Get("token"))
-	if err != nil {
-		log.Println(err)
-		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
-		return
-	}
-
 	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
@@ -145,7 +168,19 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UserUsecase.DeleteUser(id)
+	state, err := h.VerifyToken(id, r.Header.Get("token"))
+	if !state {
+		log.Println(fmt.Errorf("token isn't correct for this account"))
+		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
+		return
+	}
+	if err != nil {
+		log.Println(err)
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	response, err := h.UserUsecase.DeleteUser(id, r.Header.Get("token"))
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
@@ -156,14 +191,19 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	_, err := jwt.VerifyToken(r.Header.Get("token"))
+	id, err := readParamInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	id, err := readParamInt(r, "id")
+	state, err := h.VerifyToken(id, r.Header.Get("token"))
+	if !state {
+		log.Println(fmt.Errorf("token isn't correct for this account"))
+		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
+		return
+	}
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})

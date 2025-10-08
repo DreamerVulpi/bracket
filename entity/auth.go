@@ -1,22 +1,30 @@
 package entity
 
-type Authentication struct {
+type Auth struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
 }
 
-type AuthenticationLoginRequest struct {
+type AuthLoginRequest struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
 }
 
-type AuthenticationLoginResponse struct{}
+type AuthLoginResponse struct{}
 
-type AuthenticationRegisterReguest struct {
+type AuthRegisterReguest struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
 }
 
-type AuthenticationRegisterResponse struct {
+type AuthRegisterResponse struct {
 	Id int `json:"id"`
+}
+
+type AuthTokenRequest struct {
+	Id int
+}
+
+type AuthTokenResponse struct {
+	Token string
 }

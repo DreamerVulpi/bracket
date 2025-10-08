@@ -10,10 +10,10 @@ type User struct {
 type UserAddRequest struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
+	JWTtoken string `json:"JWTtoken"`
 }
 
 type UserEditRequest struct {
-	Login    string `json:"login"`
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
 	JWTtoken string `json:"JWTtoken"`

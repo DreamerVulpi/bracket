@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/DreamerVulpi/bracket/jwt"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -14,17 +13,12 @@ type User struct {
 	Conn *pgxpool.Pool
 }
 
-func (u *User) Add(nickname string, password string) (int, error) {
+func (u *User) Add(nickname string, password string, token string) (int, error) {
 	const sql = "INSERT INTO users (nickname, password, token) VALUES ($1, $2, $3) RETURNING id"
 
 	var id int
 
-	tokenString, err := jwt.CreateJWTtoken(nickname)
-	if err != nil {
-		return 0, fmt.Errorf("can't create jwt token, %w", err)
-	}
-
-	err = u.Conn.QueryRow(context.Background(), sql, nickname, password, tokenString).Scan(&id)
+	err := u.Conn.QueryRow(context.Background(), sql, nickname, password, token).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("unable to create player in database, %w", err)
 	}
@@ -59,11 +53,11 @@ func (u *User) GetUserByNickname(nickname string) (entity.User, error) {
 	return user, nil
 }
 
-func (u *User) Edit(player entity.User) error {
-	const sql = "UPDATE users SET nickname = $1 WHERE id = $2"
+func (u *User) Edit(user entity.User) error {
+	const sql = "UPDATE users SET nickname = $1 WHERE id = $2 AND token = $3"
 
-	tag, err := u.Conn.Exec(context.Background(), sql, player.Nickname, player.Id)
-	log.Println(player)
+	tag, err := u.Conn.Exec(context.Background(), sql, user.Nickname, user.Id, user.JWTtoken)
+	log.Println(user)
 	if err != nil {
 		return fmt.Errorf("unable to edit user from database, %w", err)
 	}
@@ -75,10 +69,10 @@ func (u *User) Edit(player entity.User) error {
 	return nil
 }
 
-func (u *User) Delete(id int) error {
-	const sql = "DELETE FROM users WHERE id = $1"
+func (u *User) Delete(id int, token string) error {
+	const sql = "DELETE FROM users WHERE id = $1 AND token = $2"
 
-	tag, err := u.Conn.Exec(context.Background(), sql, id)
+	tag, err := u.Conn.Exec(context.Background(), sql, id, token)
 	if err != nil {
 		return fmt.Errorf("don't deleted user from database, %w", err)
 	}
