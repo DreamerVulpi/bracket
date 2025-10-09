@@ -59,14 +59,14 @@ func (u *User) GetUser(id int) (entity.UserGetResponse, error) {
 	if err != nil {
 		return entity.UserGetResponse{}, err
 	}
-	return entity.UserGetResponse{User: user}, nil
+	return entity.UserGetResponse{Id: user.Id, Nickname: user.Nickname}, nil
 }
 
-func (u *User) GetUserByNickname(nickname string) (entity.UserGetResponse, error) {
+func (u *User) GetUserByNickname(nickname string) (entity.User, error) {
 	user, err := u.Repo.GetUserByNickname(nickname)
 	if err != nil {
-		return entity.UserGetResponse{}, err
+		return entity.User{}, err
 	}
 
-	return entity.UserGetResponse{User: user}, nil
+	return user, nil
 }

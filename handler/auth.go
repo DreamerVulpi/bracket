@@ -35,14 +35,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(response.User.Password), []byte(jsonRequest.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(response.Password), []byte(jsonRequest.Password))
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	w.Header().Add("token", response.User.JWTtoken)
+	w.Header().Add("token", response.JWTtoken)
 
 	jsonResponse(w, response)
 }
