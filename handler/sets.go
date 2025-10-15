@@ -8,6 +8,7 @@ import (
 )
 
 func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
+
 	result, err := readJsonRequest[entity.SetAddRequest](r.Body)
 	if err != nil {
 		log.Println(err)

@@ -5,9 +5,10 @@ import (
 )
 
 type UserRepo interface {
-	Add(nickname string) (int, error)
+	Add(nickname string, password string, token string) (int, error)
 	Get(id int) (entity.User, error)
-	Delete(id int) error
+	GetUserByNickname(nickname string) (entity.User, error)
+	Delete(id int, token string) error
 	Edit(player entity.User) error
 }
 
@@ -16,7 +17,7 @@ type User struct {
 }
 
 func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, error) {
-	id, err := u.Repo.Add(request.Nickname)
+	id, err := u.Repo.Add(request.Nickname, request.Password, request.JWTtoken)
 	if err != nil {
 		return entity.UserAddResponse{}, err
 	}
@@ -38,14 +39,14 @@ func (u *User) EditUser(id int, request entity.UserEditRequest) (entity.UserEdit
 	return entity.UserEditResponse{}, nil
 }
 
-func (u *User) DeleteUser(id int) (entity.UserDeleteResponse, error) {
+func (u *User) DeleteUser(id int, token string) (entity.UserDeleteResponse, error) {
 	user, err := u.Repo.Get(id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
 
 	// TODO: CASCADE?
-	err = u.Repo.Delete(user.Id)
+	err = u.Repo.Delete(user.Id, token)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
@@ -58,6 +59,14 @@ func (u *User) GetUser(id int) (entity.UserGetResponse, error) {
 	if err != nil {
 		return entity.UserGetResponse{}, err
 	}
+	return entity.UserGetResponse{Id: user.Id, Nickname: user.Nickname}, nil
+}
 
-	return entity.UserGetResponse{Player: user}, nil
+func (u *User) GetUserByNickname(nickname string) (entity.User, error) {
+	user, err := u.Repo.GetUserByNickname(nickname)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
 }

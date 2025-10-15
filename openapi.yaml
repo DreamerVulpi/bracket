@@ -13,11 +13,13 @@ tags:
     description: (Пулы содержат бои)
   
 paths:
-  /api/v1/user:
+  /api/v1/user/{id}:
     post:
       tags:
         - Users
       summary: "Метод для создания сущности User"
+      security:
+        - bearerAuth: []
       requestBody:
         description: "Необходимо передать никнейм игрока"
         required: true
@@ -27,6 +29,7 @@ paths:
               $ref: '#/components/schemas/UserPostRequest'
             example: 
               nickname: "player1"
+              password: "12345"
       responses:
         '200':
           description: "Успешный ответ"
@@ -44,6 +47,8 @@ paths:
       tags:
         - Users
       summary: "Метод для получения сущности User"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -78,6 +83,8 @@ paths:
       tags:
         - Users
       summary: "Метод для удаления сущности User"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -112,6 +119,8 @@ paths:
       tags:
         - Users
       summary: "Метод для редактирования сущности User"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -127,10 +136,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserEditRequest'
-            example: 
-              player:
-                id: 1
-                nickname: "player1"
       responses:
         '200':
           description: "Успешный ответ"
@@ -149,6 +154,8 @@ paths:
       tags:
         - Sets
       summary: "Метод для создания сущности Set"
+      security:
+        - bearerAuth: []
       requestBody:
         description: "Необходимо передать никнейм игрока 1 и 2, а также poolId"
         required: true
@@ -177,6 +184,8 @@ paths:
       tags:
         - Sets
       summary: "Метод для получения сущности Set"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -211,6 +220,8 @@ paths:
       tags:
         - Sets
       summary: "Метод для удаления сущности Set"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -245,6 +256,8 @@ paths:
       tags:
         - Sets
       summary: "Метод для редактирования сущности Set"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -284,6 +297,8 @@ paths:
       tags:
         - Pools
       summary: "Метод для создания сущности Pool"
+      security:
+        - bearerAuth: []
       requestBody:
         description: "Необходимо передать идентификатор (id) сущности Bracket"
         required: true
@@ -310,6 +325,8 @@ paths:
       tags:
         - Pools
       summary: "Метод для получения сущности Pool"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -344,6 +361,8 @@ paths:
       tags:
         - Pools
       summary: "Метод для удаления сущности Pool"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -378,6 +397,8 @@ paths:
       tags:
         - Pools
       summary: "Метод для редактирования сущности Pool"
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -415,6 +436,11 @@ paths:
       
     
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Error:
       type: object
@@ -550,6 +576,9 @@ components:
         nickname:
           type: string
           example: player1
+        password:
+          type: string
+          example: 12345
     UserPostResponse:
       type: object
       properties:
@@ -574,6 +603,12 @@ components:
             nickname:
               type: string
               example: player1
+            password:
+              type: string
+              example: "djsaklj132l4131k23112312k31"
+            token:
+              type: string
+              example: "sadaldm1233412414141.1dasdaffgsdwre.42342341aserda"
     UserDeleteRequest:
       type: object
       properties:
@@ -594,5 +629,8 @@ components:
             nickname:
               type: string
               example: player1
+            password:
+              type: string
+              example: "djsaklj132l4131k23112312k31"
     UserEditResponse:
       type: object
