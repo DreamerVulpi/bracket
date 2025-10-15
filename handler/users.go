@@ -123,10 +123,9 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := h.VerifyToken(id, r.Header.Get("token"))
+	state, err := h.VerifyToken(r.Header.Get("token"))
 	if !state {
-		log.Println(fmt.Errorf("token isn't correct for this account"))
-		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 	if err != nil {
@@ -168,10 +167,9 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := h.VerifyToken(id, r.Header.Get("token"))
+	state, err := h.VerifyToken(r.Header.Get("token"))
 	if !state {
-		log.Println(fmt.Errorf("token isn't correct for this account"))
-		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
+		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 	if err != nil {
@@ -198,14 +196,8 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := h.VerifyToken(id, r.Header.Get("token"))
-	if !state {
-		log.Println(fmt.Errorf("token isn't correct for this account"))
-		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("token isn't correct for this account").Error()})
-		return
-	}
-	if err != nil {
-		log.Println(err)
+	state, err := h.VerifyToken(r.Header.Get("token"))
+	if !state || err != nil {
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}

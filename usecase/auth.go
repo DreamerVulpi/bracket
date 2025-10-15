@@ -3,17 +3,17 @@ package usecase
 import "github.com/DreamerVulpi/bracket/entity"
 
 type AuthRepo interface {
-	GetToken(id int) (string, error)
+	CheckToken(token string) (bool, error)
 }
 
 type Auth struct {
 	Repo AuthRepo
 }
 
-func (a *Auth) GetUserToken(id int) (entity.AuthTokenResponse, error) {
-	token, err := a.Repo.GetToken(id)
+func (a *Auth) CheckTokenFromDb(token string) (entity.AuthTokenResponse, error) {
+	state, err := a.Repo.CheckToken(token)
 	if err != nil {
 		return entity.AuthTokenResponse{}, err
 	}
-	return entity.AuthTokenResponse{Token: token}, nil
+	return entity.AuthTokenResponse{State: state}, nil
 }

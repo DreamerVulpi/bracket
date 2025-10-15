@@ -97,21 +97,16 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, response)
 }
 
-func (h *Handler) VerifyToken(id int, inputToken string) (bool, error) {
-	log.Printf("id = %v | inputToken = %v", id, inputToken)
-	response, err := h.AuthUsecase.GetUserToken(id)
+func (h *Handler) VerifyToken(inputToken string) (bool, error) {
+	if len(inputToken) == 0 {
+		return false, fmt.Errorf("token field is empty")
+	}
+
+	response, err := h.AuthUsecase.CheckTokenFromDb(inputToken)
 	if err != nil {
 		log.Println(err.Error())
 		return false, err
 	}
 
-	if len(inputToken) == 0 {
-		return false, fmt.Errorf("token field is empty")
-	}
-
-	if inputToken != response.Token {
-		return false, fmt.Errorf("token isn't correct for this account")
-	}
-
-	return true, nil
+	return response.State, nil
 }

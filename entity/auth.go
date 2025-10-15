@@ -26,5 +26,5 @@ type AuthTokenRequest struct {
 }
 
 type AuthTokenResponse struct {
-	Token string
+	State bool
 }
