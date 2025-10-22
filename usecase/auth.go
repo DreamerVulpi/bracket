@@ -1,19 +1,49 @@
 package usecase
 
-import "github.com/DreamerVulpi/bracket/entity"
+import (
+	"log"
+
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type AuthRepo interface {
-	CheckToken(token string) (bool, error)
+	CheckHash(nickname, password string) error
+	GenerateHash(password string) (string, error)
+	GenerateToken(id, secretKey string) (string, error)
 }
 
 type Auth struct {
-	Repo AuthRepo
+	Repo      AuthRepo
+	SecretKey string
 }
 
-func (a *Auth) CheckTokenFromDb(token string) (entity.AuthTokenResponse, error) {
-	state, err := a.Repo.CheckToken(token)
+type Claims struct {
+	jwt.RegisteredClaims
+}
+
+func (a *Auth) CreateJWTtoken(id string) (string, error) {
+	token, err := a.Repo.GenerateToken(id, a.SecretKey)
 	if err != nil {
-		return entity.AuthTokenResponse{}, err
+		return "", err
 	}
-	return entity.AuthTokenResponse{State: state}, nil
+	return token, nil
+}
+
+func (a *Auth) CreatePasswordHash(password string) (string, error) {
+	hash, err := a.Repo.GenerateHash(password)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+func (a *Auth) VerifyHash(nickname, password string) error {
+	err := a.Repo.CheckHash(nickname, password)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }

@@ -8,7 +8,7 @@ type UserRepo interface {
 	Add(nickname string, password string, token string) (int, error)
 	Get(id int) (entity.User, error)
 	GetUserByNickname(nickname string) (entity.User, error)
-	Delete(id int, token string) error
+	Delete(id int) error
 	Edit(player entity.User) error
 }
 
@@ -39,14 +39,14 @@ func (u *User) EditUser(id int, request entity.UserEditRequest) (entity.UserEdit
 	return entity.UserEditResponse{}, nil
 }
 
-func (u *User) DeleteUser(id int, token string) (entity.UserDeleteResponse, error) {
+func (u *User) DeleteUser(id int) (entity.UserDeleteResponse, error) {
 	user, err := u.Repo.Get(id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}
 
 	// TODO: CASCADE?
-	err = u.Repo.Delete(user.Id, token)
+	err = u.Repo.Delete(user.Id)
 	if err != nil {
 		return entity.UserDeleteResponse{}, err
 	}

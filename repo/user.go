@@ -54,7 +54,7 @@ func (u *User) GetUserByNickname(nickname string) (entity.User, error) {
 }
 
 func (u *User) Edit(user entity.User) error {
-	const sql = "UPDATE users SET nickname = $1 WHERE id = $2 AND token = $3"
+	const sql = "UPDATE users SET nickname = $1 WHERE id = $2"
 
 	tag, err := u.Conn.Exec(context.Background(), sql, user.Nickname, user.Id, user.JWTtoken)
 	log.Println(user)
@@ -69,10 +69,10 @@ func (u *User) Edit(user entity.User) error {
 	return nil
 }
 
-func (u *User) Delete(id int, token string) error {
+func (u *User) Delete(id int) error {
 	const sql = "DELETE FROM users WHERE id = $1 AND token = $2"
 
-	tag, err := u.Conn.Exec(context.Background(), sql, id, token)
+	tag, err := u.Conn.Exec(context.Background(), sql, id)
 	if err != nil {
 		return fmt.Errorf("don't deleted user from database, %w", err)
 	}

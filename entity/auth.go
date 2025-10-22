@@ -10,7 +10,9 @@ type AuthLoginRequest struct {
 	Password string `json:"password"`
 }
 
-type AuthLoginResponse struct{}
+type AuthLoginResponse struct {
+	Token string `json:"token"`
+}
 
 type AuthRegisterReguest struct {
 	Nickname string `json:"nickname"`

@@ -3,8 +3,8 @@
 CREATE TABLE users
 (
     id SERIAL PRIMARY KEY,
-    nickname VARCHAR(30) UNIQUE NOT NULL,
-    password VARCHAR(300) NOT NULL,
+    nickname TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
     token TEXT
 );
 

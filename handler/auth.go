@@ -7,11 +7,10 @@ import (
 	"log"
 
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/emersion/go-bcrypt"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	jsonRequest, err := readJsonRequest[entity.UserAddRequest](r.Body)
+	jsonRequest, err := readJsonRequest[entity.AuthLoginRequest](r.Body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -19,32 +18,30 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if len(jsonRequest.Nickname) == 0 {
 		log.Println(fmt.Errorf("don't get login"))
-		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("don't get nickname").Error()})
+		jsonResponse(w, entity.ErrorResponse{Error: "don't get nickname"})
 		return
 	}
 	if len(jsonRequest.Password) == 0 {
 		log.Println(fmt.Errorf("don't get password"))
-		jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("don't get password").Error()})
+		jsonResponse(w, entity.ErrorResponse{Error: "don't get password"})
 		return
 	}
 
-	response, err := h.UserUsecase.GetUserByNickname(jsonRequest.Nickname)
+	err = h.AuthUsecase.VerifyHash(jsonRequest.Nickname, jsonRequest.Password)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(response.Password), []byte(jsonRequest.Password))
+	token, err := h.AuthUsecase.CreateJWTtoken(jsonRequest.Nickname)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	w.Header().Add("token", response.JWTtoken)
-
-	jsonResponse(w, response)
+	jsonResponse(w, entity.AuthLoginResponse{Token: token})
 }
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
@@ -65,48 +62,28 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(jsonRequest.Password), 2)
-	if err != nil {
-		log.Println(err)
-		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	jsonRequest.Password = string(hash)
-
-	token, err := h.CreateJWTtoken(jsonRequest.Nickname)
+	token, err := h.AuthUsecase.CreateJWTtoken(jsonRequest.Nickname)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	request := entity.UserAddRequest{
+	hash, err := h.AuthUsecase.CreatePasswordHash(jsonRequest.Password)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	response, err := h.UserUsecase.AddUser(entity.UserAddRequest{
 		Nickname: jsonRequest.Nickname,
-		Password: jsonRequest.Password,
+		Password: hash,
 		JWTtoken: token,
-	}
-
-	response, err := h.UserUsecase.AddUser(request)
+	})
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	w.Header().Add("token", token)
 	jsonResponse(w, response)
-}
-
-func (h *Handler) VerifyToken(inputToken string) (bool, error) {
-	if len(inputToken) == 0 {
-		return false, fmt.Errorf("token field is empty")
-	}
-
-	response, err := h.AuthUsecase.CheckTokenFromDb(inputToken)
-	if err != nil {
-		log.Println(err.Error())
-		return false, err
-	}
-
-	return response.State, nil
 }
