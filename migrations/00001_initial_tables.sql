@@ -4,8 +4,7 @@ CREATE TABLE users
 (
     id SERIAL PRIMARY KEY,
     nickname TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    token TEXT
+    password_hash TEXT NOT NULL,
 );
 
 CREATE TABLE tournaments

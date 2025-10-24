@@ -9,17 +9,11 @@ import (
 	"encoding/json"
 
 	"github.com/DreamerVulpi/bracket/entity"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/DreamerVulpi/bracket/pkg/jwt"
 )
 
 type Middleware struct {
-	SecretKey string
-}
-
-func (m *Middleware) parseToken(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return []byte(m.SecretKey), nil
-	})
+	Jwt jwt.Jwt
 }
 
 func jsonResponse(w http.ResponseWriter, response any) {
@@ -44,18 +38,11 @@ func (m *Middleware) Auth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		token, err := m.parseToken(tokenString)
+		_, err := m.Jwt.ParseToken(tokenString)
 		if err != nil {
-			log.Printf("Token parse error: %v", err)
-			jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("incorrect token: parsing failed").Error()})
+			jsonResponse(w, entity.ErrorResponse{Error: err.Error()})
 			return
 		}
-
-		if !token.Valid {
-			jsonResponse(w, entity.ErrorResponse{Error: fmt.Errorf("incorrect token: not valid").Error()})
-			return
-		}
-
 		next(w, r)
 	}
 }

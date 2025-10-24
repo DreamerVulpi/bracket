@@ -1,39 +1,44 @@
 package jwt
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"fmt"
+	"log"
 
-// FIXME: VULNARABILITY: KEY IN CONFIGURATION
-var secretKey = []byte("ps1")
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type Jwt struct {
+	SecretKey string
+}
 
 type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateJWTtoken(nickname string) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims = Claims{}
-
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
-}
-
-func VerifyToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (any, error) {
-		return secretKey, nil
+func (j *Jwt) ParseToken(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		return []byte(j.SecretKey), nil
 	})
 
 	if err != nil {
-		return nil, err
+		log.Printf("Token parse error: %v", err)
+		return nil, fmt.Errorf("incorrect token: parsing failed")
 	}
 
-	claims, ok := token.Claims.(*Claims)
-	if !ok || !token.Valid {
-		return nil, jwt.ErrTokenInvalidClaims
+	if !token.Valid {
+		log.Printf("Token incorrect error: %v", err)
+		return nil, fmt.Errorf("incorrect token: not valid")
 	}
 
-	return claims, nil
+	return token, nil
+}
+
+func (j *Jwt) CreateJWTtoken(id string) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = Claims{jwt.RegisteredClaims{ID: id}}
+	tokenString, err := token.SignedString([]byte(j.SecretKey))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }

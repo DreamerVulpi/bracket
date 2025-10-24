@@ -73,8 +73,8 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	request := entity.UserAddRequest{
-		Nickname: jsonRequest.Nickname,
-		Password: jsonRequest.Password,
+		Nickname:      jsonRequest.Nickname,
+		Password_Hash: jsonRequest.Password_Hash,
 	}
 
 	response, err := h.UserUsecase.AddUser(request)
