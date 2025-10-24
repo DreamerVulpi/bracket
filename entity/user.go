@@ -1,19 +1,19 @@
 package entity
 
 type User struct {
-	Id            int    `json:"id"`
-	Nickname      string `json:"nickname"`
-	Password_Hash string `json:"password_hash"`
+	Id           int    `json:"id"`
+	Nickname     string `json:"nickname"`
+	PasswordHash string `json:"-"`
 }
 
 type UserAddRequest struct {
-	Nickname      string `json:"nickname"`
-	Password_Hash string `json:"password_hash"`
+	Nickname     string `json:"nickname"`
+	PasswordHash string `json:"-"`
 }
 
 type UserEditRequest struct {
-	Nickname      string `json:"nickname"`
-	Password_Hash string `json:"password_hash"`
+	Nickname     string `json:"nickname"`
+	PasswordHash string `json:"-"`
 }
 
 type UserAddResponse struct {

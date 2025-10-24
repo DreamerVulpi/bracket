@@ -29,15 +29,15 @@ func (a *Auth) Register(user entity.AuthRegisterReguest) (entity.UserAddResponse
 		return entity.UserAddResponse{}, fmt.Errorf("don't get password")
 	}
 
-	hash, err := a.CreatePasswordHash(user.Password)
+	hash, err := a.createPasswordHash(user.Password)
 	if err != nil {
 		log.Println(err)
 		return entity.UserAddResponse{}, err
 	}
 
 	response, err := a.User.AddUser(entity.UserAddRequest{
-		Nickname:      user.Nickname,
-		Password_Hash: hash,
+		Nickname:     user.Nickname,
+		PasswordHash: hash,
 	})
 	if err != nil {
 		log.Println(err)
@@ -58,7 +58,7 @@ func (a *Auth) Login(user entity.AuthLoginRequest) (entity.AuthLoginResponse, er
 		return entity.AuthLoginResponse{}, fmt.Errorf("don't get password")
 	}
 
-	err := a.VerifyHash(user.Nickname, user.Password)
+	err := a.verifyHash(user.Nickname, user.Password)
 	if err != nil {
 		log.Println(err)
 		return entity.AuthLoginResponse{}, err
@@ -73,7 +73,7 @@ func (a *Auth) Login(user entity.AuthLoginRequest) (entity.AuthLoginResponse, er
 	return entity.AuthLoginResponse{Token: token}, err
 }
 
-func (a *Auth) CreatePasswordHash(password string) (string, error) {
+func (a *Auth) createPasswordHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 2)
 	if err != nil {
 		log.Println(err)
@@ -83,7 +83,7 @@ func (a *Auth) CreatePasswordHash(password string) (string, error) {
 	return string(hash), nil
 }
 
-func (a *Auth) VerifyHash(nickname, password string) error {
+func (a *Auth) verifyHash(nickname, password string) error {
 	hash, err := a.Repo.GetHash(nickname, password)
 	if err != nil {
 		log.Println(err)

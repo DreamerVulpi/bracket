@@ -16,7 +16,7 @@ type User struct {
 }
 
 func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, error) {
-	id, err := u.Repo.Add(request.Nickname, request.Password_Hash)
+	id, err := u.Repo.Add(request.Nickname, request.PasswordHash)
 	if err != nil {
 		return entity.UserAddResponse{}, err
 	}

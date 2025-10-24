@@ -13,12 +13,12 @@ type User struct {
 	Conn *pgxpool.Pool
 }
 
-func (u *User) Add(nickname string, password_hash string) (int, error) {
+func (u *User) Add(nickname string, passwordHash string) (int, error) {
 	const sql = "INSERT INTO users (nickname, password_hash) VALUES ($1, $2) RETURNING id"
 
 	var id int
 
-	err := u.Conn.QueryRow(context.Background(), sql, nickname, password_hash).Scan(&id)
+	err := u.Conn.QueryRow(context.Background(), sql, nickname, passwordHash).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("unable to create player in database, %w", err)
 	}
