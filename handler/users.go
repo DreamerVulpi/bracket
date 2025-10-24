@@ -17,6 +17,7 @@ type Handler struct {
 	UserUsecase usecase.User
 	SetUsecase  usecase.Set
 	PoolUsecase usecase.Pool
+	AuthUsecase usecase.Auth
 }
 
 func readParamInt(r *http.Request, name string) (int, error) {
@@ -71,7 +72,12 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UserUsecase.AddUser(jsonRequest)
+	request := entity.UserAddRequest{
+		Nickname:     jsonRequest.Nickname,
+		PasswordHash: jsonRequest.PasswordHash,
+	}
+
+	response, err := h.UserUsecase.AddUser(request)
 	if err != nil {
 		log.Println(err)
 		jsonResponse(w, entity.ErrorResponse{Error: err.Error()})

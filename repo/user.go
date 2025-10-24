@@ -13,12 +13,12 @@ type User struct {
 	Conn *pgxpool.Pool
 }
 
-func (u *User) Add(nickname string) (int, error) {
-	const sql = "INSERT INTO users (nickname) VALUES ($1) RETURNING id"
+func (u *User) Add(nickname string, passwordHash string) (int, error) {
+	const sql = "INSERT INTO users (nickname, password_hash) VALUES ($1, $2) RETURNING id"
 
 	var id int
 
-	err := u.Conn.QueryRow(context.Background(), sql, nickname).Scan(&id)
+	err := u.Conn.QueryRow(context.Background(), sql, nickname, passwordHash).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("unable to create player in database, %w", err)
 	}
@@ -27,11 +27,12 @@ func (u *User) Add(nickname string) (int, error) {
 }
 
 func (u *User) Get(id int) (entity.User, error) {
-	const sql = "SELECT u.id, u.nickname FROM users u WHERE id = $1"
+	const sql = "SELECT u.id, u.nickname, u.password_hash FROM users u WHERE id = $1"
 
 	var user entity.User
 
-	err := u.Conn.QueryRow(context.Background(), sql, id).Scan(&user.Id, &user.Nickname)
+	var ignoredField any
+	err := u.Conn.QueryRow(context.Background(), sql, id).Scan(&user.Id, &user.Nickname, &ignoredField)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("unable to get from database, %w", err)
 	}
@@ -39,11 +40,11 @@ func (u *User) Get(id int) (entity.User, error) {
 	return user, nil
 }
 
-func (u *User) Edit(player entity.User) error {
+func (u *User) Edit(user entity.User) error {
 	const sql = "UPDATE users SET nickname = $1 WHERE id = $2"
 
-	tag, err := u.Conn.Exec(context.Background(), sql, player.Nickname, player.Id)
-	log.Println(player)
+	tag, err := u.Conn.Exec(context.Background(), sql, user.Nickname, user.Id)
+	log.Println(user)
 	if err != nil {
 		return fmt.Errorf("unable to edit user from database, %w", err)
 	}

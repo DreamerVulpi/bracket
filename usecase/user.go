@@ -5,7 +5,7 @@ import (
 )
 
 type UserRepo interface {
-	Add(nickname string) (int, error)
+	Add(nickname string, password string) (int, error)
 	Get(id int) (entity.User, error)
 	Delete(id int) error
 	Edit(player entity.User) error
@@ -16,7 +16,7 @@ type User struct {
 }
 
 func (u *User) AddUser(request entity.UserAddRequest) (entity.UserAddResponse, error) {
-	id, err := u.Repo.Add(request.Nickname)
+	id, err := u.Repo.Add(request.Nickname, request.PasswordHash)
 	if err != nil {
 		return entity.UserAddResponse{}, err
 	}
@@ -58,6 +58,5 @@ func (u *User) GetUser(id int) (entity.UserGetResponse, error) {
 	if err != nil {
 		return entity.UserGetResponse{}, err
 	}
-
-	return entity.UserGetResponse{Player: user}, nil
+	return entity.UserGetResponse{Id: user.Id, Nickname: user.Nickname}, nil
 }
