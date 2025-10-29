@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ci_test_postgres
+    environment:
+      POSTGRES_USER: runner
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432" 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U runner -d testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  migrator:
+    image: golang:1.24-alpine 
+    depends_on:
+      postgres:
+        condition: service_healthy 
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable"
+    volumes:
+      - ../:/app 
+    working_dir: /app
+    command: |
+      /bin/sh -c "
+      echo '--- DEBUG INFO ---' &&
+      pwd &&
+      ls -l &&
+      echo '--------------------' &&
+      echo 'Starting migrations...' &&
+      go install github.com/pressly/goose/v3/cmd/goose@latest &&
+      goose -dir ./migrations up
+      "
+    restart: "no"
