@@ -42,12 +42,12 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
-      - name: Wait for Postgres to be ready
-        uses: nev7n/wait_for_response@v1
+      - name: Wait for Postgres to be ready (TCP Port Check)
+        uses: nick-invision/wait-for-service@v1.0.0
         with:
           host: postgres
           port: 5432
-          timeout: 60
+          timeout: 60s
       - name: Set DB_DSN Environment Variable
         run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
