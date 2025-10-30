@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -18,9 +17,6 @@ import (
 type TestLogger struct {
 	T *testing.T
 }
-
-var testPool *pgxpool.Pool         // Глобальная переменная для пула соединений
-var testCtx = context.Background() // Глобальный контекст для TestMain
 
 const (
 	img        = "postgres:16-alpine"
@@ -61,9 +57,14 @@ func TestPostgresContainer(t *testing.T) {
 	t.Logf("PostgreSQL DSN: %s", connStr)
 
 	// 3. Подключение к базе данных
+	var closeErr error
 	db, err := sql.Open("postgres", connStr)
 	require.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		if closeErr == nil {
+			closeErr = db.Close()
+		}
+	}()
 
 	// Проверка соединения
 	err = db.Ping()
@@ -76,4 +77,5 @@ func TestPostgresContainer(t *testing.T) {
 	require.NoError(t, err)
 
 	fmt.Printf("PostgreSQL Version: %s\n", version)
+	require.NoError(t, closeErr)
 }
