@@ -51,6 +51,7 @@ jobs:
           username: runner
           password: password
           database: testdb
+          wait-indefinitely: true
       - name: Set DB_DSN Environment Variable
         run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
