@@ -42,16 +42,19 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
-      - name: Wait for Postgres to be ready (TCP Port Check)
-        uses: kula-app/wait-for-services-action@v1.1.1
-        with:
-          type: postgres
-          host: postgres
-          port: 5432
-          username: runner
-          password: password
-          database: testdb
-          wait-indefinitely: true
+      - name: Wait for Postgres (using pg_isready)
+        run: |
+          PGPASSWORD=password
+          for i in $(seq 1 10); do
+            if pg_isready -h postgres -p 5432 -U runner; then
+              echo "Postgres is ready!"
+              exit 0
+            fi
+            echo "Waiting for Postgres, attempt $i..."
+            sleep 5
+          done
+          echo "Postgres timed out after 50 seconds."
+          exit 1
       - name: Set DB_DSN Environment Variable
         run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
