@@ -46,12 +46,11 @@ jobs:
         run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
         run: go install github.com/pressly/goose/v3/cmd/goose@latest
-      - name: Change directory to folder migrations
-        run: cd ./migrations
       - name: Launch goose (Run migrations)
         env:
           GOOSE_DRIVER: postgres
           GOOSE_DBSTRING: ${{ env.DB_DSN }}
+          GOOSE_MIGRATION_DIR: ./migrations
         run: goose up
       - name: Test launch postgres
         run: go test ./tests -run ^TestPostgresContainer$
