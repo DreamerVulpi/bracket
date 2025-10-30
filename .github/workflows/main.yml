@@ -46,7 +46,7 @@ jobs:
         uses: kula-app/wait-for-services-action@v1.1.1
         with:
           type: postgres
-          host: localhost
+          host: postgres
           port: 5432
           username: runner
           password: password
