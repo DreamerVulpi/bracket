@@ -57,7 +57,7 @@ jobs:
       - name: Install goose
         run: go install github.com/pressly/goose/v3/cmd/goose@latest
       - name: Launch goose (Run migrations)
-        run: goose postgres "${{ env.DB_DSN }}" up
+        run: goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
       - name: Test launch postgres
         if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestPostgresContainer$
