@@ -60,7 +60,7 @@ jobs:
         if: job.services.postgres.status == 'ready' 
         run: sleep 1
       - name: Launch goose (Run migrations)
-        run: goose -dir ./migrations gpostgres "${{ env.DB_DSN }}" up
+        run: goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
       - name: Test launch postgres
         if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestPostgresContainer$
