@@ -56,18 +56,16 @@ jobs:
         run: echo "DB_DSN=postgres://runner:password@postgres:5432/testdb?sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
         run: go install github.com/pressly/goose/v3/cmd/goose@latest
-      - name: Wait 1 second for network stabilization
-        if: job.services.postgres.status == 'ready' 
-        run: sleep 1
-      - name: Launch goose (Run migrations)
-        run: goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
+      - name: Wait for Postgres and Run Migrations
+        run: |
+          echo "Waiting for Postgres to be fully available..."
+          timeout 60 bash -c 'until echo > /dev/tcp/postgres/5432; do sleep 1; done'
+          goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
       - name: Test launch postgres
-        if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestPostgresContainer$
         env:
           DB_DSN: ${{ env.DB_DSN }}
       - name: Test CRUD methods of entity User
-        if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestMethodsUser$
   # test:
   #   runs-on: ubuntu-latest
