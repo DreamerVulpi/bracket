@@ -53,7 +53,7 @@ jobs:
       #     database: testdb
       #     wait-indefinitely: true
       - name: Set DB_DSN Environment Variable
-        run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
+        run: echo "DB_DSN=postgres://runner:password@postgres:5432/testdb?sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
         run: go install github.com/pressly/goose/v3/cmd/goose@latest
       - name: Launch goose (Run migrations)
