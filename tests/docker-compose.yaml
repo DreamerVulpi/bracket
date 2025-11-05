@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:13-alpine
     container_name: ci_test_postgres
     environment:
       POSTGRES_USER: runner
