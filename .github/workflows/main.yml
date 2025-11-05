@@ -42,16 +42,16 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
-      - name: Wait for Postgres to be ready (TCP Port Check)
-        uses: kula-app/wait-for-services-action@v1.1.1
-        with:
-          type: postgres
-          host: postgres
-          port: 5432
-          username: runner
-          password: password
-          database: testdb
-          wait-indefinitely: true
+      # - name: Wait for Postgres to be ready (TCP Port Check)
+      #   uses: kula-app/wait-for-services-action@v1.1.1
+      #   with:
+      #     type: postgres
+      #     host: postgres
+      #     port: 5432
+      #     username: runner
+      #     password: password
+      #     database: testdb
+      #     wait-indefinitely: true
       - name: Set DB_DSN Environment Variable
         run: echo "DB_DSN=user=runner password=password host=postgres port=5432 dbname=testdb sslmode=disable" >> $GITHUB_ENV
       - name: Install goose
@@ -59,14 +59,14 @@ jobs:
       - name: Launch goose (Run migrations)
         env:
           GOOSE_DRIVER: postgres
-          GOOSE_DBSTRING: ${{ env.DB_DSN }}
-          GOOSE_MIGRATION_DIR: ./migrations
-        run: goose up
+        run: goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
       - name: Test launch postgres
+        if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestPostgresContainer$
         env:
           DB_DSN: ${{ env.DB_DSN }}
       - name: Test CRUD methods of entity User
+        if: job.services.postgres.status == 'ready'
         run: go test ./tests -run ^TestMethodsUser$
   # test:
   #   runs-on: ubuntu-latest
