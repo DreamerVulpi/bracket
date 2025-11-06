@@ -22,12 +22,64 @@ jobs:
         run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.5.0
       - name: Launch linter
         run: golangci-lint run
-  test:
+  database:
     runs-on: ubuntu-latest
+    needs: build
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testdb
+        options: >- 
+          --health-cmd "pg_isready" 
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
-      - name: Launch tests
-        run: go test ./...
+      # - name: Wait for Postgres to be ready (TCP Port Check)
+      #   uses: kula-app/wait-for-services-action@v1.1.1
+      #   with:
+      #     type: postgres
+      #     host: postgres
+      #     port: 5432
+      #     username: runner
+      #     password: password
+      #     database: testdb
+      #     wait-indefinitely: true
+      - name: Set DB_DSN Environment Variable
+        run: echo "DB_DSN=postgres://runner:password@postgres:5432/testdb?sslmode=disable" >> $GITHUB_ENV
+      - name: Install goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+      - name: Wait for Postgres and Run Migrations (using Netcat)
+        run: |
+          echo "Waiting for Postgres service (host: postgres, port: 5432)..."
+          
+          sudo apt-get update && sudo apt-get install -y netcat
+          
+          timeout 60 bash -c \
+            'until nc -z -v -w 1 postgres 5432; do echo "Still waiting..."; sleep 1; done'
+          
+          echo "Postgres is ready! Running migrations."
+
+          goose -dir ./migrations postgres "${{ env.DB_DSN }}" up
+      - name: Test launch postgres
+        run: go test ./tests -run ^TestPostgresContainer$
+        env:
+          DB_DSN: ${{ env.DB_DSN }}
+      - name: Test CRUD methods of entity User
+        run: go test ./tests -run ^TestMethodsUser$
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: actions/setup-go@v6
+  #       with:
+  #         go-version: '1.25'
+  #     - name: Launch tests
+  #       run: go test ./...
